@@ -144,6 +144,10 @@ func (c *obcController) enqueueOBC(obj interface{}) {
 		utilruntime.HandleError(err)
 		return
 	}
+
+	// Ignore rate limit temporally
+	log.Info("I forget rate limit for OBC", "key", key)
+	c.queue.Forget(key)
 	c.queue.AddRateLimited(key)
 }
 
@@ -185,6 +189,9 @@ func (c *obcController) processNextItemInQueue() bool {
 		// Run the syncHandler, passing it the namespace/name string of the
 		// Foo resource to be synced.
 		if err := c.syncHandler(key); err != nil {
+			// Ignore rate limit temporally
+			log.Info("I forget rate limit", "key", key)
+			c.queue.Forget(key)
 			// Put the item back on the workqueue to handle any transient errors.
 			c.queue.AddRateLimited(key)
 			return fmt.Errorf("error syncing '%s': %s, requeuing", key, err.Error())
