@@ -144,6 +144,8 @@ func (c *obcController) enqueueOBC(obj interface{}) {
 		utilruntime.HandleError(err)
 		return
 	}
+	setLoggersWithRequest(key)
+	log.Info("AddRateLimited", "key", key)
 	c.queue.AddRateLimited(key)
 }
 
@@ -191,6 +193,8 @@ func (c *obcController) processNextItemInQueue() bool {
 		}
 		// Finally, if no error occurs we Forget this item so it does not
 		// get queued again until another change happens.
+		setLoggersWithRequest(key)
+		log.Info("Forget", "key", key)
 		c.queue.Forget(obj)
 		return nil
 	}(obj)
